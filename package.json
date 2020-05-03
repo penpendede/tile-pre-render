@@ -1,0 +1,16 @@
+{
+  "name": "tile-pre-render",
+  "version": "1.0.0",
+  "description": "Get tile range for renderd",
+  "main": "show_tile_range.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Josef Schugt <penpendede@mail.ru>",
+  "license": "ISC",
+  "dependencies": {
+    "node-getopt": "^0.3.2",
+    "proj4": "^2.6.1",
+    "sprintf-js": "^1.1.2"
+  }
+}
