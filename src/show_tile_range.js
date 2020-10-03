@@ -33,22 +33,22 @@ function getTileCoordinates (lat, lon, zoom) {
 let opt = require('node-getopt').create([
   [
     'x',
-    'x-value-minimum=ARG',
+    'x-val-min=ARG',
     'lower limit for x value'
   ],
   [
     'X',
-    'x-value-maximum=ARG',
+    'x-val-max=ARG',
     'upper limit for x value'
   ],
   [
     'y',
-    'y-value-minimum=ARG',
+    'y-val-min=ARG',
     'lower limit for y value'
   ],
   [
     'Y',
-    'y-value-maximum=ARG',
+    'y-val-max=ARG',
     'upper limit for y value'
   ],
   [
@@ -78,11 +78,11 @@ let opt = require('node-getopt').create([
 let xMin, xMax, yMin, yMax, zMin, zMax, projection
 
 // Handle y value minimum
-if (!opt.options.hasOwnProperty('y-value-minimum')) {
+if (!opt.options.hasOwnProperty('y-val-min')) {
   console.error('no lower limit for y value provided.')
   return 1
 } else {
-  yMin = Number.parseFloat(opt.options['y-value-minimum'])
+  yMin = Number.parseFloat(opt.options['y-val-min'])
   if (Number.isNaN(yMin)) {
     console.error('lower limit for y value cannot be parsed as a number.')
     return 1
@@ -90,11 +90,11 @@ if (!opt.options.hasOwnProperty('y-value-minimum')) {
 }
 
 // Handle y value maximum
-if (!opt.options.hasOwnProperty('y-value-maximum')) {
+if (!opt.options.hasOwnProperty('y-val-max')) {
   console.error('no upper limit for y value provided.')
   return 1
 } else {
-  yMax = Number.parseFloat(opt.options['y-value-maximum'])
+  yMax = Number.parseFloat(opt.options['y-val-max'])
   if (Number.isNaN(yMax)) {
     console.error('upper limit for y value cannot be parsed as a number.')
     return 1
@@ -110,11 +110,11 @@ if (yMin > yMax) {
 }
 
 // Handle x value minimum
-if (!opt.options.hasOwnProperty('x-value-minimum')) {
+if (!opt.options.hasOwnProperty('x-val-min')) {
   console.error('no lower limit for x value provided.')
   return 1
 } else {
-  xMin = Number.parseFloat(opt.options['x-value-minimum'])
+  xMin = Number.parseFloat(opt.options['x-val-min'])
   if (Number.isNaN(xMin)) {
     console.error('lower limit for x value cannot be parsed as a number.')
     return 1
@@ -122,11 +122,11 @@ if (!opt.options.hasOwnProperty('x-value-minimum')) {
 }
 
 // Handle x value maximum
-if (!opt.options.hasOwnProperty('x-value-maximum')) {
+if (!opt.options.hasOwnProperty('x-val-max')) {
   console.error('no upper limit for x value provided.')
   return 1
 } else {
-  xMax = Number.parseFloat(opt.options['x-value-maximum'])
+  xMax = Number.parseFloat(opt.options['x-val-max'])
   if (Number.isNaN(xMax)) {
     console.error('upper limit for x value cannot be parsed as a number.')
     return 1
