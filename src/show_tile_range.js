@@ -80,24 +80,24 @@ let xMin, xMax, yMin, yMax, zMin, zMax, projection
 // Handle y value minimum
 if (!Object.hasOwnProperty.call(opt.options, 'y-val-min')) {
   console.error('no lower limit for y value provided.')
-  return 1
+  process.exit(1)
 } else {
   yMin = Number.parseFloat(opt.options['y-val-min'])
   if (Number.isNaN(yMin)) {
     console.error('lower limit for y value cannot be parsed as a number.')
-    return 1
+    process.exit(1)
   }
 }
 
 // Handle y value maximum
 if (!Object.hasOwnProperty.call(opt.options, 'y-val-max')) {
   console.error('no upper limit for y value provided.')
-  return 1
+  process.exit(1)
 } else {
   yMax = Number.parseFloat(opt.options['y-val-max'])
   if (Number.isNaN(yMax)) {
     console.error('upper limit for y value cannot be parsed as a number.')
-    return 1
+    process.exit(1)
   }
 }
 
@@ -106,30 +106,30 @@ if (yMin > yMax) {
   console.log('lower limit for y value higher than upper limit, swapping')
   h = yMin
   yMin = yMax
-  return 1
+  process.exit(1)
 }
 
 // Handle x value minimum
 if (!Object.hasOwnProperty.call(opt.options, 'x-val-min')) {
   console.error('no lower limit for x value provided.')
-  return 1
+  process.exit(1)
 } else {
   xMin = Number.parseFloat(opt.options['x-val-min'])
   if (Number.isNaN(xMin)) {
     console.error('lower limit for x value cannot be parsed as a number.')
-    return 1
+    process.exit(1)
   }
 }
 
 // Handle x value maximum
 if (!Object.hasOwnProperty.call(opt.options, 'x-val-max')) {
   console.error('no upper limit for x value provided.')
-  return 1
+  process.exit(1)
 } else {
   xMax = Number.parseFloat(opt.options['x-val-max'])
   if (Number.isNaN(xMax)) {
     console.error('upper limit for x value cannot be parsed as a number.')
-    return 1
+    process.exit(1)
   }
 }
 
@@ -159,24 +159,24 @@ if (projection !== 'EPSG:4326') {
 // Handle zoom-minimum
 if (!Object.hasOwnProperty.call(opt.options, 'zoom-minimum')) {
   console.error('no lower limit for zoom provided.')
-  return 1
+  process.exit(1)
 } else {
   zMin = Number.parseInt(opt.options['zoom-minimum'])
   if (Number.isNaN(zMin)) {
     console.error('lower limit for zoom cannot be parsed as a number.')
-    return 1
+    process.exit(1)
   }
 }
 
 // Handle zoom maximum
 if (!Object.hasOwnProperty.call(opt.options, 'zoom-maximum')) {
   console.error('no upper limit for zoom provided.')
-  return 1
+  process.exit(1)
 } else {
   zMax = Number.parseInt(opt.options['zoom-maximum'])
   if (Number.isNaN(zMax)) {
     console.error('upper limit for zoom cannot be parsed as a number.')
-    return 1
+    process.exit(1)
   }
 }
 
@@ -198,4 +198,4 @@ for (let zoom = zMin; zoom <= zMax; zoom++) {
   console.log(sprintf('zoom %7d: -x %7d -X %7d -y %7d -Y %7d', zoom, x0, x1, y1, y0))
 }
 
-return 0
+process.exit(0)
