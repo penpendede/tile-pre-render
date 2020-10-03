@@ -3,6 +3,17 @@ const sprintf = require('sprintf-js').sprintf
 
 let h
 
+const commandLineArguments = [
+  ['x', 'x-val-min=ARG', 'lower limit for x value'],
+  ['X', 'x-val-max=ARG', 'upper limit for x value'],
+  ['y', 'y-val-min=ARG', 'lower limit for y value'],
+  ['Y', 'y-val-max=ARG', 'upper limit for y value'],
+  ['z', 'zoom-min=ARG', 'lowest zoom level value'],
+  ['Z', 'zoom-max=ARG', 'highest zoom level value'],
+  ['p', 'projection=ARG', 'projection in which the coordinates are provided'],
+  ['h', 'help', 'display this help']
+]
+
 function toRadians (w) {
   return w * Math.PI / 180.0
 }
@@ -30,48 +41,7 @@ function getTileCoordinates (lat, lon, zoom) {
   }
 }
 
-const opt = require('node-getopt').create([
-  [
-    'x',
-    'x-val-min=ARG',
-    'lower limit for x value'
-  ],
-  [
-    'X',
-    'x-val-max=ARG',
-    'upper limit for x value'
-  ],
-  [
-    'y',
-    'y-val-min=ARG',
-    'lower limit for y value'
-  ],
-  [
-    'Y',
-    'y-val-max=ARG',
-    'upper limit for y value'
-  ],
-  [
-    'z',
-    'zoom-minimum=ARG',
-    'lowest zoom level value'
-  ],
-  [
-    'Z',
-    'zoom-maximum=ARG',
-    'highest zoom level value'
-  ],
-  [
-    'p',
-    'projection=ARG',
-    'projection in which the coordinates are provided'
-  ],
-  [
-    'h',
-    'help',
-    'display this help'
-  ]
-])
+const opt = require('node-getopt').create(commandLineArguments)
   .bindHelp()
   .parseSystem()
 
