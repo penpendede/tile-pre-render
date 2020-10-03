@@ -1,5 +1,5 @@
-let proj4 = require('proj4')
-let sprintf = require('sprintf-js').sprintf
+const proj4 = require('proj4')
+const sprintf = require('sprintf-js').sprintf
 
 let h
 
@@ -25,12 +25,12 @@ function getTileCoordinates (lat, lon, zoom) {
     yTile = Math.pow(2.0, zoom) - 1.0
   }
   return {
-    'X': xTile,
-    'Y': yTile
+    X: xTile,
+    Y: yTile
   }
 }
 
-let opt = require('node-getopt').create([
+const opt = require('node-getopt').create([
   [
     'x',
     'x-val-min=ARG',
@@ -78,7 +78,7 @@ let opt = require('node-getopt').create([
 let xMin, xMax, yMin, yMax, zMin, zMax, projection
 
 // Handle y value minimum
-if (!opt.options.hasOwnProperty('y-val-min')) {
+if (!Object.hasOwnProperty.call(opt.options, 'y-val-min')) {
   console.error('no lower limit for y value provided.')
   return 1
 } else {
@@ -90,7 +90,7 @@ if (!opt.options.hasOwnProperty('y-val-min')) {
 }
 
 // Handle y value maximum
-if (!opt.options.hasOwnProperty('y-val-max')) {
+if (!Object.hasOwnProperty.call(opt.options, 'y-val-max')) {
   console.error('no upper limit for y value provided.')
   return 1
 } else {
@@ -110,7 +110,7 @@ if (yMin > yMax) {
 }
 
 // Handle x value minimum
-if (!opt.options.hasOwnProperty('x-val-min')) {
+if (!Object.hasOwnProperty.call(opt.options, 'x-val-min')) {
   console.error('no lower limit for x value provided.')
   return 1
 } else {
@@ -122,7 +122,7 @@ if (!opt.options.hasOwnProperty('x-val-min')) {
 }
 
 // Handle x value maximum
-if (!opt.options.hasOwnProperty('x-val-max')) {
+if (!Object.hasOwnProperty.call(opt.options, 'x-val-max')) {
   console.error('no upper limit for x value provided.')
   return 1
 } else {
@@ -141,22 +141,23 @@ if (xMin > xMax) {
   xMax = h
 }
 
-if (!opt.options.hasOwnProperty('projection')) {
-  projection = "EPSG:4326"
+if (!Object.hasOwnProperty.call(opt.options, 'projection')) {
+  projection = 'EPSG:4326'
 } else {
   projection = opt.options.projection
 }
 
-
-var convertedCoordinates = proj4(projection, "EPSG:4326", [xMin, yMin])
-xMin = convertedCoordinates[0]
-yMin = convertedCoordinates[1]
-convertedCoordinates = proj4(projection, "EPSG:4326", [xMax, yMax])
-xMax = convertedCoordinates[0]
-yMax = convertedCoordinates[1]
+if (projection !== 'EPSG:4326') {
+  var convertedCoordinates = proj4(projection, 'EPSG:4326', [xMin, yMin])
+  xMin = convertedCoordinates[0]
+  yMin = convertedCoordinates[1]
+  convertedCoordinates = proj4(projection, 'EPSG:4326', [xMax, yMax])
+  xMax = convertedCoordinates[0]
+  yMax = convertedCoordinates[1]
+}
 
 // Handle zoom-minimum
-if (!opt.options.hasOwnProperty('zoom-minimum')) {
+if (!Object.hasOwnProperty.call(opt.options, 'zoom-minimum')) {
   console.error('no lower limit for zoom provided.')
   return 1
 } else {
@@ -168,7 +169,7 @@ if (!opt.options.hasOwnProperty('zoom-minimum')) {
 }
 
 // Handle zoom maximum
-if (!opt.options.hasOwnProperty('zoom-maximum')) {
+if (!Object.hasOwnProperty.call(opt.options, 'zoom-maximum')) {
   console.error('no upper limit for zoom provided.')
   return 1
 } else {
@@ -188,12 +189,12 @@ if (zMin > zMax) {
 }
 
 for (let zoom = zMin; zoom <= zMax; zoom++) {
-  coords =  getTileCoordinates (yMin, xMin, zoom)
-  x0 = coords.X
-  y0 = coords.Y
-  coords =  getTileCoordinates (yMax, xMax, zoom)
-  x1 = coords.X
-  y1 = coords.Y
+  let coords = getTileCoordinates(yMin, xMin, zoom)
+  const x0 = coords.X
+  const y0 = coords.Y
+  coords = getTileCoordinates(yMax, xMax, zoom)
+  const x1 = coords.X
+  const y1 = coords.Y
   console.log(sprintf('zoom %7d: -x %7d -X %7d -y %7d -Y %7d', zoom, x0, x1, y1, y0))
 }
 
