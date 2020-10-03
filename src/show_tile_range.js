@@ -1,16 +1,21 @@
 const proj4 = require('proj4')
-const sprintf = require('sprintf-js').sprintf
-
+const fs = require('fs')
 let h
 
 const commandLineArguments = [
-  ['x', 'x-val-lower=ARG', 'lower limit for x value'],
-  ['X', 'x-val-upper=ARG', 'upper limit for x value'],
-  ['y', 'y-val-lower=ARG', 'lower limit for y value'],
-  ['Y', 'y-val-upper=ARG', 'upper limit for y value'],
-  ['z', 'z-val-lower=ARG', 'lower limit for z value (zoom level)'],
-  ['Z', 'z-val-upper=ARG', 'upper limit for z value (zoom level)'],
-  ['p', 'projection=ARG', 'projection in which the coordinates are provided'],
+  ['c', 'command=ARG', 'render command, defaults to "render_list"'],
+  ['m', 'map=ARG', 'map to render, default "osm"'],
+  ['s', 'socket=ARG', 'socket to use, default "/run/renderd/renderd.sock"'],
+  ['S', 'shell=ARG', 'shell for script, default "sh"'],
+  ['o', 'file=ARG', 'file to write (without this the script is printed)'],
+  ['O', 'overwrite', 'overwrite file if exists'],
+  ['x', 'x-min=ARG', 'min x value'],
+  ['X', 'x-max=ARG', 'max x value'],
+  ['y', 'y-min=ARG', 'min y value'],
+  ['Y', 'y-max=ARG', 'max y value'],
+  ['z', 'z-min=ARG', 'min z value (zoom level)'],
+  ['Z', 'z-max=ARG', 'max z value (zoom level)'],
+  ['p', 'proj=ARG', 'proj in which the coordinates are provided'],
   ['h', 'help', 'display this help']
 ]
 
@@ -41,51 +46,102 @@ function getTileCoordinates (lat, lon, zoom) {
   }
 }
 
-const opt = require('node-getopt').create(commandLineArguments).bindHelp().parseSystem()
+const opt = require('node-getopt').create(commandLineArguments).bindHelp().parseSystem().options
 
-const args = {}
+const arg = {}
+
+if (Object.hasOwnProperty.call(opt, 'file')) {
+  arg.file = opt.file
+} else {
+  arg.file = null
+}
+
+arg.overwrite = opt.overwrite
+
+try {
+  if (arg.file !== undefined && fs.existsSync(arg.file)) {
+    if (!arg.overwrite) {
+      console.warn(`File "${arg.file}" already exists, use -O/--overwrite to overwrite`)
+      process.exit(1)
+    }
+  }
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}
+
+if (Object.hasOwnProperty.call(opt, 'command')) {
+  arg.command = opt.command
+} else {
+  arg.command = 'render_list'
+}
+
+if (Object.hasOwnProperty.call(opt, 'map')) {
+  arg.map = opt.map
+} else {
+  arg.map = 'osm'
+}
+
+if (Object.hasOwnProperty.call(opt, 'socket')) {
+  arg.socket = opt.socket
+} else {
+  arg.socket = '/run/renderd/renderd.sock'
+}
+
+if (Object.hasOwnProperty.call(opt, 'shell')) {
+  arg.shell = opt.shell
+} else {
+  arg.shell = 'sh'
+}
 
 for (const id of ['x', 'y', 'z']) {
-  for (const limit of ['lower', 'upper']) {
-    if (!Object.hasOwnProperty.call(opt.options, `${id}-val-${limit}`)) {
+  for (const limit of ['min', 'max']) {
+    if (!Object.hasOwnProperty.call(opt, `${id}-${limit}`)) {
       console.error(`no ${limit} for ${id} value provided.`)
       process.exit(1)
     } else {
-      args[`${id}-val-${limit}`] = Number.parseFloat(opt.options[`${id}-val-${limit}`])
-      if (Number.isNaN(args[id])) {
-        console.error(`lower limit for ${id} value cannot be parsed as a number.`)
+      arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
+      if (Number.isNaN(arg[id])) {
+        console.error(`${limit} ${id} value cannot be parsed as a number.`)
         process.exit(1)
       }
     }
   }
-  if (args[`${id}-val-lower`] > args[`${id}-val-upper`]) {
-    console.log(`lower limit for ${id} value higher than uppz-val-lowerer limit, swapping`)
-    h = args[`${id}-val-lower`]
-    args[`${id}-val-lower`] = args[`${id}-val-upper`]
-    args[`${id}-val-upper`] = h
+  if (arg[`${id}-min`] > arg[`${id}-max`]) {
+    console.log(`min ${id} value larger than max, swapping`)
+    h = arg[`${id}-min`]
+    arg[`${id}-min`] = arg[`${id}-max`]
+    arg[`${id}-max`] = h
   }
 }
 
-if (!Object.hasOwnProperty.call(opt.options, 'projection')) {
-  args.projection = 'EPSG:4326'
+if (!Object.hasOwnProperty.call(opt, 'proj')) {
+  arg.proj = 'EPSG:4326'
 } else {
-  args.projection = opt.options.projection
+  arg.proj = opt.proj
 }
 
-if (args.projection !== 'EPSG:4326') {
-  for (const limit of ['lower', 'upper']) {
-    var convertedCoordinates = proj4(args.projection, 'EPSG:4326', [args[`x-val-${limit}`], args[`y-val-${limit}`]])
-    args[`x-val-${limit}`] = convertedCoordinates[0]
-    args[`y-val-${limit}`] = convertedCoordinates[1]
+if (arg.proj !== 'EPSG:4326') {
+  for (const limit of ['min', 'max']) {
+    var convertedCoordinates = proj4(arg.proj, 'EPSG:4326', [arg[`x-${limit}`], arg[`y-${limit}`]])
+    arg[`x-${limit}`] = convertedCoordinates[0]
+    arg[`y-${limit}`] = convertedCoordinates[1]
   }
 }
-console.log(args)
-for (let z = args['z-val-lower']; z <= args['z-val-upper']; z++) {
-  let coords = getTileCoordinates(args['y-val-lower'], args['x-val-lower'], z)
+const scriptRows = [`#!/usr/bin/env ${arg.shell}`]
+for (let z = arg['z-min']; z <= arg['z-max']; z++) {
+  let coords = getTileCoordinates(arg['y-min'], arg['x-min'], z)
   const x0 = coords.X
   const y0 = coords.Y
-  coords = getTileCoordinates(args['y-val-upper'], args['x-val-upper'], z)
+  coords = getTileCoordinates(arg['y-max'], arg['x-max'], z)
   const x1 = coords.X
   const y1 = coords.Y
-  console.log(sprintf('zoom %7d: -x %7d -X %7d -y %7d -Y %7d', zoom, x0, x1, y1, y0))
+  scriptRows.push(`${arg.command} -m ${arg.map} -a -z ${z} -z ${z} -x ${x0} -X ${x1} -y ${y1} -Y ${y0} -f -h 4 -s ${arg.socket}`)
+}
+const script = scriptRows.join('\n') + '\n'
+
+if (arg.file === null) {
+  console.log(script)
+} else {
+  fs.writeFileSync(arg.file, script)
 }
