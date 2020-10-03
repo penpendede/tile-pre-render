@@ -3,19 +3,25 @@ const fs = require('fs')
 let h
 
 const commandLineArguments = [
-  ['c', 'command=ARG', 'render command, defaults to "render_list"'],
-  ['m', 'map=ARG', 'map to render, default "osm"'],
-  ['s', 'socket=ARG', 'socket to use, default "/run/renderd/renderd.sock"'],
-  ['S', 'shell=ARG', 'shell for script, default "sh"'],
-  ['o', 'file=ARG', 'file to write (without this the script is printed)'],
-  ['O', 'overwrite', 'overwrite file if exists'],
+  // scrip args
   ['x', 'x-min=ARG', 'min x value'],
   ['X', 'x-max=ARG', 'max x value'],
   ['y', 'y-min=ARG', 'min y value'],
   ['Y', 'y-max=ARG', 'max y value'],
   ['z', 'z-min=ARG', 'min z value (zoom level)'],
   ['Z', 'z-max=ARG', 'max z value (zoom level)'],
-  ['p', 'proj=ARG', 'proj in which the coordinates are provided'],
+  ['p', 'proj=PROJECTION', 'proj in which the coordinates are provided'],
+  ['o', 'file=FILE', 'file to write (without this the script is printed)'],
+  ['O', 'overwrite', 'overwrite file if exists'],
+  ['c', 'command=COMMAND', 'render command, defaults to "render_list"'],
+  ['S', 'shell=SHELL', 'shell for script, default "sh"'],
+  // command args
+  ['n', 'threads=ARG', 'the number of parallel request threads, default 1'],
+  ['f', 'force', 'render tiles even if they seem current'],
+  ['m', 'map=MAP', 'map to render, default "default"'],
+  ['l', 'load=LOAD', 'sleep if load is this high, default 16'],
+  ['s', 'socket=SOCKET', 'socket to use, default "/run/renderd/renderd.sock"'],
+  ['t', 'tile-dir=DIR', 'tile cache directory, default "/var/lib/mod_tile"'],
   ['h', 'help', 'display this help']
 ]
 
@@ -79,7 +85,7 @@ if (Object.hasOwnProperty.call(opt, 'command')) {
 if (Object.hasOwnProperty.call(opt, 'map')) {
   arg.map = opt.map
 } else {
-  arg.map = 'osm'
+  arg.map = 'default'
 }
 
 if (Object.hasOwnProperty.call(opt, 'socket')) {
@@ -92,6 +98,26 @@ if (Object.hasOwnProperty.call(opt, 'shell')) {
   arg.shell = opt.shell
 } else {
   arg.shell = 'sh'
+}
+
+if (Object.hasOwnProperty.call(opt, 'threads')) {
+  arg.threads = opt.threads
+} else {
+  arg.threads = '1'
+}
+
+arg.force = opt.force
+
+if (Object.hasOwnProperty.call(opt, 'load')) {
+  arg.load = opt.load
+} else {
+  arg.load = '16'
+}
+
+if (Object.hasOwnProperty.call(opt, 'tile-dir')) {
+  arg.tileDir = opt['tile-dir']
+} else {
+  arg.tileDir = '/var/lib/mod_tile'
 }
 
 for (const id of ['x', 'y', 'z']) {
@@ -136,7 +162,27 @@ for (let z = arg['z-min']; z <= arg['z-max']; z++) {
   coords = getTileCoordinates(arg['y-max'], arg['x-max'], z)
   const x1 = coords.X
   const y1 = coords.Y
-  scriptRows.push(`${arg.command} -m ${arg.map} -a -z ${z} -z ${z} -x ${x0} -X ${x1} -y ${y1} -Y ${y0} -f -h 4 -s ${arg.socket}`)
+  const rowParts = [arg.command, '-a', '-z', z, '-z', z, '-x', x0, '-X', x1, '-y', y1, '-Y', y0, '-s', arg.socket]
+  if (arg.map !== 'default') {
+    rowParts.push('-m')
+    rowParts.push(arg.map)
+  }
+  if (arg.force) {
+    rowParts.push('-f')
+  }
+  if (arg.threads !== '1') {
+    rowParts.push('-n')
+    rowParts.push(arg.threads)
+  }
+  if (arg.load !== '16') {
+    rowParts.push('-l')
+    rowParts.push(arg.load)
+  }
+  if (arg.tileDir !== '/var/lib/mod_tile') {
+    rowParts.push('-t')
+    rowParts.push(arg.tileDir)
+  }
+  scriptRows.push(rowParts.join(' '))
 }
 const script = scriptRows.join('\n') + '\n'
 
