@@ -162,7 +162,7 @@ for (let z = arg['z-min']; z <= arg['z-max']; z++) {
   coords = getTileCoordinates(arg['y-max'], arg['x-max'], z)
   const x1 = coords.X
   const y1 = coords.Y
-  const rowParts = [arg.command, '-a', '-z', z, '-z', z, '-x', x0, '-X', x1, '-y', y1, '-Y', y0, '-s', arg.socket]
+  const rowParts = [arg.command, '-a', '-z', z, '-Z', z, '-x', x0, '-X', x1, '-y', y1, '-Y', y0, '-s', arg.socket]
   if (arg.map !== 'default') {
     rowParts.push('-m')
     rowParts.push(arg.map)
