@@ -126,12 +126,12 @@ if (projection !== 'EPSG:4326') {
   yMax = convertedCoordinates[1]
 }
 
-// Handle zoom-minimum
-if (!Object.hasOwnProperty.call(opt.options, 'zoom-minimum')) {
+// Handle zoom-min
+if (!Object.hasOwnProperty.call(opt.options, 'zoom-min')) {
   console.error('no lower limit for zoom provided.')
   process.exit(1)
 } else {
-  zMin = Number.parseInt(opt.options['zoom-minimum'])
+  zMin = Number.parseInt(opt.options['zoom-min'])
   if (Number.isNaN(zMin)) {
     console.error('lower limit for zoom cannot be parsed as a number.')
     process.exit(1)
