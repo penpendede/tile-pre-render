@@ -1,6 +1,8 @@
 let proj4 = require('proj4')
 let sprintf = require('sprintf-js').sprintf
 
+let h
+
 function toRadians (w) {
   return w * Math.PI / 180.0
 }
@@ -31,23 +33,23 @@ function getTileCoordinates (lat, lon, zoom) {
 let opt = require('node-getopt').create([
   [
     'x',
-    'longitude-minimum=ARG',
-    'lower limit for longitude'
+    'x-value-minimum=ARG',
+    'lower limit for x value'
   ],
   [
     'X',
-    'longitude-maximum=ARG',
-    'upper limit for longitude'
+    'x-value-maximum=ARG',
+    'upper limit for x value'
   ],
   [
     'y',
-    'latitude-minimum=ARG',
-    'lower limit for latitude'
+    'y-value-minimum=ARG',
+    'lower limit for y value'
   ],
   [
     'Y',
-    'latitude-maximum=ARG',
-    'upper limit for latitude'
+    'y-value-maximum=ARG',
+    'upper limit for y value'
   ],
   [
     'z',
@@ -75,64 +77,68 @@ let opt = require('node-getopt').create([
 
 let xMin, xMax, yMin, yMax, zMin, zMax, projection
 
-// Handle latitude-minimum
-if (!opt.options.hasOwnProperty('latitude-minimum')) {
-  console.error('no lower limit for latitude provided.')
+// Handle y value minimum
+if (!opt.options.hasOwnProperty('y-value-minimum')) {
+  console.error('no lower limit for y value provided.')
   return 1
 } else {
-  yMin = Number.parseFloat(opt.options['latitude-minimum'])
+  yMin = Number.parseFloat(opt.options['y-value-minimum'])
   if (Number.isNaN(yMin)) {
-    console.error('lower limit for latitude cannot be parsed as a number.')
+    console.error('lower limit for y value cannot be parsed as a number.')
     return 1
   }
 }
 
-// Handle latitude-maximum
-if (!opt.options.hasOwnProperty('latitude-maximum')) {
-  console.error('no upper limit for latitude provided.')
+// Handle y value maximum
+if (!opt.options.hasOwnProperty('y-value-maximum')) {
+  console.error('no upper limit for y value provided.')
   return 1
 } else {
-  yMax = Number.parseFloat(opt.options['latitude-maximum'])
+  yMax = Number.parseFloat(opt.options['y-value-maximum'])
   if (Number.isNaN(yMax)) {
-    console.error('upper limit for latitude cannot be parsed as a number.')
+    console.error('upper limit for y value cannot be parsed as a number.')
     return 1
   }
 }
 
-// Ensure latitude-minimum <= latitude-maximum
+// Ensure y value minimum <= y value maximum
 if (yMin > yMax) {
-  console.error('lower limit for latitude higher than upper limit')
+  console.log('lower limit for y value higher than upper limit, swapping')
+  h = yMin
+  yMin = yMax
   return 1
 }
 
-// Handle longitude-minimum
-if (!opt.options.hasOwnProperty('longitude-minimum')) {
-  console.error('no lower limit for longitude provided.')
+// Handle x value minimum
+if (!opt.options.hasOwnProperty('x-value-minimum')) {
+  console.error('no lower limit for x value provided.')
   return 1
 } else {
-  xMin = Number.parseFloat(opt.options['longitude-minimum'])
+  xMin = Number.parseFloat(opt.options['x-value-minimum'])
   if (Number.isNaN(xMin)) {
-    console.error('lower limit for longitude cannot be parsed as a number.')
+    console.error('lower limit for x value cannot be parsed as a number.')
     return 1
   }
 }
 
-// Handle longitude maximum
-if (!opt.options.hasOwnProperty('longitude-maximum')) {
-  console.error('no upper limit for longitude provided.')
+// Handle x value maximum
+if (!opt.options.hasOwnProperty('x-value-maximum')) {
+  console.error('no upper limit for x value provided.')
   return 1
 } else {
-  xMax = Number.parseFloat(opt.options['longitude-maximum'])
+  xMax = Number.parseFloat(opt.options['x-value-maximum'])
   if (Number.isNaN(xMax)) {
-    console.error('upper limit for longitude cannot be parsed as a number.')
+    console.error('upper limit for x value cannot be parsed as a number.')
     return 1
   }
 }
 
-// Ensure longitude-minimum <= longitude-maximum
+// Ensure x value minimum <= x value maximum
 if (xMin > xMax) {
-  console.error('lower limit for longitude higher than upper limit')
-  return 1
+  console.log('lower limit for x value higher than upper limit, swapping')
+  h = xMin
+  xMin = xMax
+  xMax = h
 }
 
 if (!opt.options.hasOwnProperty('projection')) {
@@ -173,10 +179,12 @@ if (!opt.options.hasOwnProperty('zoom-maximum')) {
   }
 }
 
-// Ensure longitude-minimum <= longitude-maximum
+// Ensure x value minimum <= x value maximum
 if (zMin > zMax) {
-  console.error('lower limit for zoom higher than upper limit')
-  return 1
+  console.log('lower limit for zoom higher than upper limit, swapping')
+  h = zMin
+  zMin = zMax
+  zMax = h
 }
 
 for (let zoom = zMin; zoom <= zMax; zoom++) {
