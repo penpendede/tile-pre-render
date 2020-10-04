@@ -1,9 +1,11 @@
 const proj4 = require('proj4')
 const fs = require('fs')
+const { exit } = require('process')
 let h
 
 const commandLineArguments = [
-  // scrip args
+  // script args
+  ['L', 'long-opt-names', 'print long option names'],
   ['x', 'x-min=ARG', 'min x value'],
   ['X', 'x-max=ARG', 'max x value'],
   ['y', 'y-min=ARG', 'min y value'],
@@ -24,6 +26,89 @@ const commandLineArguments = [
   ['t', 'tile-dir=DIR', 'tile cache directory, default "/var/lib/mod_tile"'],
   ['h', 'help', 'display this help']
 ]
+
+const defaultsList = [
+  {
+    name: 'command',
+    default: 'render_list'
+  },
+  {
+    name: 'load',
+    value: '16'
+  },
+  {
+    name: 'map',
+    default: 'default'
+  },
+  {
+    name: 'proj',
+    default: 'EPSG:4326'
+  },
+  {
+    name: 'shell',
+    default: 'sh'
+  },
+  {
+    name: 'socket',
+    default: '/run/renderd/renderd.sock'
+  },
+  {
+    name: 'threads',
+    default: '1'
+  },
+  {
+    name: 'tile-dir',
+    default: '/var/lib/mod_tile'
+  }
+]
+const optionalArgs = [
+  {
+    name: 'force',
+    skipVal: false,
+    option: '-f',
+    noValue: true
+  },
+  {
+    name: 'load',
+    skipVal: '16',
+    option: '-l'
+  },
+  {
+    name: 'map',
+    skipVal: 'default',
+    option: '-m'
+  },
+  {
+    name: 'threads',
+    skipVal: '1',
+    option: '-n'
+  },
+  {
+    name: 'tile-dir',
+    skipVal: '/var/lib/mod_tile',
+    option: '-t'
+  }
+]
+const booleanParameters = [
+  'force',
+  'overwrite',
+  'long-opt-names'
+]
+const argNameLong = {
+  '-a ': '--all',
+  '-f ': '--force',
+  '-l ': '--max-load=',
+  '-m ': '--map=',
+  '-n ': '--num-threads=',
+  '-s ': '---socket=',
+  '-t ': '--tile-dir=',
+  '-x ': '--min-x=',
+  '-X ': '--max-x=',
+  '-y ': '--min-y=',
+  '-Y ': '--max-y=',
+  '-z ': '--min-zoom=',
+  '-Z ': '--max-zoom='
+}
 
 function toRad (w) {
   return w * Math.PI / 180.0
@@ -56,13 +141,14 @@ const opt = require('node-getopt').create(commandLineArguments).bindHelp().parse
 
 const arg = {}
 
-if (Object.hasOwnProperty.call(opt, 'file')) {
-  arg.file = opt.file
-} else {
-  arg.file = null
+for (const item of defaultsList) {
+  arg[item.name] = Object.hasOwnProperty.call(opt, item.name) ? opt[item.name] : opt.default
 }
 
-arg.overwrite = opt.overwrite
+arg.file = opt.file
+for (const item of booleanParameters) {
+  arg[item] = !!opt[item]
+}
 
 try {
   if (arg.file !== undefined && fs.existsSync(arg.file)) {
@@ -74,50 +160,6 @@ try {
 } catch (err) {
   console.error(err)
   process.exit(1)
-}
-
-if (Object.hasOwnProperty.call(opt, 'command')) {
-  arg.command = opt.command
-} else {
-  arg.command = 'render_list'
-}
-
-if (Object.hasOwnProperty.call(opt, 'map')) {
-  arg.map = opt.map
-} else {
-  arg.map = 'default'
-}
-
-if (Object.hasOwnProperty.call(opt, 'socket')) {
-  arg.socket = opt.socket
-} else {
-  arg.socket = '/run/renderd/renderd.sock'
-}
-
-if (Object.hasOwnProperty.call(opt, 'shell')) {
-  arg.shell = opt.shell
-} else {
-  arg.shell = 'sh'
-}
-
-if (Object.hasOwnProperty.call(opt, 'threads')) {
-  arg.threads = opt.threads
-} else {
-  arg.threads = '1'
-}
-
-arg.force = opt.force
-
-if (Object.hasOwnProperty.call(opt, 'load')) {
-  arg.load = opt.load
-} else {
-  arg.load = '16'
-}
-
-if (Object.hasOwnProperty.call(opt, 'tile-dir')) {
-  arg.tileDir = opt['tile-dir']
-} else {
-  arg.tileDir = '/var/lib/mod_tile'
 }
 
 for (const id of ['x', 'y', 'z']) {
@@ -141,20 +183,26 @@ for (const id of ['x', 'y', 'z']) {
   }
 }
 
-if (!Object.hasOwnProperty.call(opt, 'proj')) {
-  arg.proj = 'EPSG:4326'
-} else {
-  arg.proj = opt.proj
-}
-
 if (arg.proj !== 'EPSG:4326') {
   for (const limit of ['min', 'max']) {
-    var convertedCoordinates = proj4(arg.proj, 'EPSG:4326', [arg[`x-${limit}`], arg[`y-${limit}`]])
+    const convertedCoordinates = proj4(arg.proj, 'EPSG:4326', [arg[`x-${limit}`], arg[`y-${limit}`]])
     arg[`x-${limit}`] = convertedCoordinates[0]
     arg[`y-${limit}`] = convertedCoordinates[1]
   }
 }
+
 const scriptRows = [`#!/usr/bin/env ${arg.shell}`]
+const commonArgs = [arg.command, ' ', '-a ', ' ', '-s ', arg.socket]
+for (const item of optionalArgs) {
+  if (arg[item.name] !== item.skipVal) {
+    commonArgs.push(' ')
+    commonArgs.push(item.option + ' ')
+    if (!item.noValue) {
+      commonArgs.push(' ')
+      commonArgs.push(arg[item.name])
+    }
+  }
+}
 for (let z = arg['z-min']; z <= arg['z-max']; z++) {
   let coords = getTileCoordinates(arg['y-min'], arg['x-min'], z)
   const x0 = coords.X
@@ -162,31 +210,20 @@ for (let z = arg['z-min']; z <= arg['z-max']; z++) {
   coords = getTileCoordinates(arg['y-max'], arg['x-max'], z)
   const x1 = coords.X
   const y1 = coords.Y
-  const rowParts = [arg.command, '-a', '-z', z, '-Z', z, '-x', x0, '-X', x1, '-y', y1, '-Y', y0, '-s', arg.socket]
-  if (arg.map !== 'default') {
-    rowParts.push('-m')
-    rowParts.push(arg.map)
+  let allArgs = commonArgs.concat([
+    ' ', '-z ', z, ' ', '-Z ', z,
+    ' ', '-x ', x0, ' ', '-X ', x1,
+    ' ', '-y ', y1, ' ', '-Y ', y0]
+  )
+  if (opt['long-opt-names']) {
+    allArgs = allArgs.map(x => Object.hasOwnProperty.call(argNameLong, x) ? argNameLong[x] : x)
   }
-  if (arg.force) {
-    rowParts.push('-f')
-  }
-  if (arg.threads !== '1') {
-    rowParts.push('-n')
-    rowParts.push(arg.threads)
-  }
-  if (arg.load !== '16') {
-    rowParts.push('-l')
-    rowParts.push(arg.load)
-  }
-  if (arg.tileDir !== '/var/lib/mod_tile') {
-    rowParts.push('-t')
-    rowParts.push(arg.tileDir)
-  }
-  scriptRows.push(rowParts.join(' '))
+  scriptRows.push(allArgs.join(''))
 }
+
 const script = scriptRows.join('\n') + '\n'
 
-if (arg.file === null) {
+if (arg.file === undefined) {
   console.log(script)
 } else {
   fs.writeFileSync(arg.file, script)
