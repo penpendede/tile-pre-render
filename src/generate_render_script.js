@@ -154,24 +154,24 @@ try {
   if (arg.file !== undefined && fs.existsSync(arg.file)) {
     if (!arg.overwrite) {
       console.warn(`File "${arg.file}" already exists, use -O/--overwrite to overwrite`)
-      process.exit(1)
+      exit(1)
     }
   }
 } catch (err) {
   console.error(err)
-  process.exit(1)
+  exit(1)
 }
 
 for (const id of ['x', 'y', 'z']) {
   for (const limit of ['min', 'max']) {
     if (!Object.hasOwnProperty.call(opt, `${id}-${limit}`)) {
       console.error(`no ${limit} for ${id} value provided.`)
-      process.exit(1)
+      exit(1)
     } else {
       arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
       if (Number.isNaN(arg[id])) {
         console.error(`${limit} ${id} value cannot be parsed as a number.`)
-        process.exit(1)
+        exit(1)
       }
     }
   }
