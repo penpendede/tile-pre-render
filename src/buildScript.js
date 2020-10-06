@@ -1,11 +1,11 @@
-const { longArgumentName } = require('./longArgumentName')
-const { optionalArguments } = require('./optionalArguments')
+const { longArgumentName } = require('./generate_render_script_CliArgs')
+const { optional } = require('./generate_render_script_CliArgs')
 const { getTileCoordinates } = require('./getTileCoordinates')
 
 exports.buildScript = arg => {
   const scriptRows = [`#!/usr/bin/env ${arg.shell}`]
   const commonArgs = [arg.command, ' ', '-a ', ' ', '-s ', arg.socket]
-  for (const item of optionalArguments) {
+  for (const item of optional) {
     if (arg[item.name] !== item.skipVal) {
       commonArgs.push(' ')
       commonArgs.push(item.option + ' ')

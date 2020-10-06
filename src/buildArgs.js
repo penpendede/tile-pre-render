@@ -1,19 +1,18 @@
 const { exit } = require('process')
 const fs = require('fs')
 const proj4 = require('proj4')
-const { booleanParameters } = require('./booleanParameters')
-const { defaultsList } = require('./defaultsList')
+const { boolean, defaults } = require('./generate_render_script_CliArgs')
 
 exports.buildArgs = opt => {
   let h
   const arg = {}
 
-  for (const item of defaultsList) {
+  for (const item of defaults) {
     arg[item.name] = Object.hasOwnProperty.call(opt, item.name) ? opt[item.name] : opt.default
   }
 
   arg.file = opt.file
-  for (const item of booleanParameters) {
+  for (const item of boolean) {
     arg[item] = !!opt[item]
   }
 
