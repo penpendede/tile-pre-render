@@ -2,7 +2,7 @@ const commonCliArgs = require('./commonCliArgs')
 exports.args = commonCliArgs.coord.concat([
   ['o', 'output-path=ARG', 'path where to write the downloaded tiles'],
   ['u', 'uri-template=ARG', 'URI template to use'],
-  ['m', 'parallel-maximum=ARG', 'maximum number of parallel downloads, default 4'],
+  ['m', 'parallel-max=ARG', 'maximum number of parallel downloads, default 4'],
   ['w', 'nowrite', 'do not write files']
 ]).concat(commonCliArgs.help)
 
