@@ -15,60 +15,6 @@ let verbose, xMin, xMax, yMin, yMax, zMin, zMax
 let uriTemplate, outputPath, maximumNumberOfParallelDownloads
 let quiet, noWrite
 
-// Handle verbose
-if (Object.hasOwnProperty.call(opt.options, 'quiet') && opt.options.quiet) {
-  quiet = true
-} else {
-  quiet = false
-}
-if (Object.hasOwnProperty.call(opt.options, 'verbose') && opt.options.verbose) {
-  console.info('verbose output enabled')
-  verbose = true
-}
-
-if (Object.hasOwnProperty.call(opt.options, 'nowrite') && opt.options.nowrite) {
-  noWrite = true
-  if (verbose) {
-    console.info('not actually writing files')
-  }
-} else {
-  noWrite = false
-}
-
-// Handle URI template
-if (!Object.hasOwnProperty.call(opt.options, 'uri-template')) {
-  console.error('no URI template provided.')
-  exit(1)
-} else {
-  uriTemplate = opt.options['uri-template']
-  const pattern = new RegExp('https?:.*//[^[]*(\\{([a-z](-[a-z])?)+\\})?.*/\\{z\\}/\\{x\\}/\\{y\\}.*')
-  if (!pattern.test(uriTemplate)) {
-    console.error('unsupported URI template')
-    exit(0)
-  } else {
-    if (verbose) {
-      console.info('URI template follows accepted pattern')
-    }
-  }
-}
-
-// Handle output path
-if (!Object.hasOwnProperty.call(opt.options, 'output-path')) {
-  console.error('no output path provided.')
-  exit(1)
-} else {
-  outputPath = opt.options['output-path']
-  if (verbose) {
-    console.info('output path has been provided')
-  }
-}
-
-if (Object.hasOwnProperty.call(opt.options, 'parallelMaximum')) {
-  maximumNumberOfParallelDownloads = Number.parseInt(opt.options.parallelMaximum)
-} else {
-  maximumNumberOfParallelDownloads = 4
-}
-
 const uriObject = uriTemplateToObject(uriTemplate)
 if (verbose) {
   console.info('URI object:')
