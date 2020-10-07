@@ -1,4 +1,4 @@
-const commonCliArgs = require('./commonCliArgs')
+const commonCliArgs = require('../common/cliArgs')
 exports.args = commonCliArgs.coord.concat([
   ['L', 'long-opt-names', 'print long option names'],
   ['o', 'file=FILE', 'file to write (without this the script is printed)'],

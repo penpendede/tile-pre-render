@@ -1,5 +1,4 @@
-const { longArgumentName } = require('./generate_render_script_CliArgs')
-const { optional } = require('./generate_render_script_CliArgs')
+const { longArgumentName, optional } = require('../generate_render_script/cliArgs')
 const { getTileCoordinates } = require('./getTileCoordinates')
 
 exports.buildScript = arg => {

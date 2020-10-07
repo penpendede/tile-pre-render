@@ -1,32 +1,9 @@
 const { exit } = require('process')
-const fs = require('fs')
 const proj4 = require('proj4')
-const { boolean, defaults } = require('./generate_render_script_CliArgs')
 
 exports.buildArgs = opt => {
   let h
   const arg = {}
-
-  for (const item of defaults) {
-    arg[item.name] = Object.hasOwnProperty.call(opt, item.name) ? opt[item.name] : opt.default
-  }
-
-  arg.file = opt.file
-  for (const item of boolean) {
-    arg[item] = !!opt[item]
-  }
-
-  try {
-    if (arg.file !== undefined && fs.existsSync(arg.file)) {
-      if (!arg.overwrite) {
-        console.warn(`File "${arg.file}" already exists, use -O/--overwrite to overwrite`)
-        exit(1)
-      }
-    }
-  } catch (err) {
-    console.error(err)
-    exit(1)
-  }
 
   for (const id of ['x', 'y', 'z']) {
     for (const limit of ['min', 'max']) {
@@ -48,6 +25,7 @@ exports.buildArgs = opt => {
       arg[`${id}-max`] = h
     }
   }
+  arg.proj = opt.proj
 
   if (arg.proj !== 'EPSG:4326') {
     for (const limit of ['min', 'max']) {
