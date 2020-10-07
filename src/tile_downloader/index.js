@@ -2,7 +2,6 @@ const { exit } = require('process')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
-const proj4 = require('proj4')
 const { makeQueue } = require('../lib/makeQueue')
 const { processQueue } = require('../lib/processQueue')
 const { uriTemplateToObject } = require('../lib/uriTemplateToObject')
@@ -13,7 +12,7 @@ const opt = require('node-getopt').create(args)
   .parseSystem()
 
 let verbose, xMin, xMax, yMin, yMax, zMin, zMax
-let uriTemplate, outputPath, projection, maximumNumberOfParallelDownloads
+let uriTemplate, outputPath, maximumNumberOfParallelDownloads
 let quiet, noWrite
 
 // Handle verbose
@@ -34,150 +33,6 @@ if (Object.hasOwnProperty.call(opt.options, 'nowrite') && opt.options.nowrite) {
   }
 } else {
   noWrite = false
-}
-
-// Handle y-min
-if (!Object.hasOwnProperty.call(opt.options, 'y-min')) {
-  console.error('no lower limit for latitude provided.')
-  exit(1)
-} else {
-  yMin = Number.parseFloat(opt.options['y-min'])
-  if (Number.isNaN(yMin)) {
-    console.error('lower limit for latitude cannot be parsed as a number.')
-    exit(1)
-  }
-  if (verbose) {
-    console.info('lower limit for latitude: ' + yMin)
-  }
-}
-
-// Handle y-max
-if (!Object.hasOwnProperty.call(opt.options, 'y-max')) {
-  console.error('no upper limit for latitude provided.')
-  exit(1)
-} else {
-  yMax = Number.parseFloat(opt.options['y-max'])
-  if (Number.isNaN(yMax)) {
-    console.error('upper limit for latitude cannot be parsed as a number.')
-    exit(1)
-  }
-  if (verbose) {
-    console.info('upper limit for latitude: ' + yMax)
-  }
-}
-
-// Ensure y-min <= y-max
-if (yMin > yMax) {
-  console.error('lower limit for latitude higher than upper limit')
-  exit(1)
-} else {
-  if (verbose) {
-    console.info('lower limit for latitude not higher than upper limit')
-  }
-}
-
-// Handle x-min
-if (!Object.hasOwnProperty.call(opt.options, 'x-min')) {
-  console.error('no lower limit for longitude provided.')
-  exit(1)
-} else {
-  xMin = Number.parseFloat(opt.options['x-min'])
-  if (Number.isNaN(xMin)) {
-    console.error('lower limit for longitude cannot be parsed as a number.')
-    exit(1)
-  }
-  if (verbose) {
-    console.info('lower limit for longitude: ' + xMin)
-  }
-}
-
-// Handle longitude maximum
-if (!Object.hasOwnProperty.call(opt.options, 'x-max')) {
-  console.error('no upper limit for longitude provided.')
-  exit(1)
-} else {
-  xMax = Number.parseFloat(opt.options['x-max'])
-  if (Number.isNaN(xMax)) {
-    console.error('upper limit for longitude cannot be parsed as a number.')
-    exit(1)
-  }
-  if (verbose) {
-    console.info('upper limit for longitude: ' + xMax)
-  }
-}
-
-// Ensure x-min <= x-max
-if (xMin > xMax) {
-  console.error('lower limit for longitude higher than upper limit')
-  exit(1)
-} else {
-  if (verbose) {
-    console.info('lower limit for longitude not higher than upper limit')
-  }
-}
-
-if (!Object.hasOwnProperty.call(opt.options, 'projection')) {
-  projection = 'EPSG:4326'
-} else {
-  projection = opt.options.projection
-}
-
-if (verbose) {
-  console.info('using projection "' + projection + '"')
-}
-
-var convertedCoordinates = proj4(projection, 'EPSG:4326', [xMin, yMin])
-xMin = convertedCoordinates[0]
-yMin = convertedCoordinates[1]
-convertedCoordinates = proj4(projection, 'EPSG:4326', [xMax, yMax])
-xMax = convertedCoordinates[0]
-yMax = convertedCoordinates[1]
-
-if (verbose) {
-  console.info('lower limit for latitude after transform: ' + yMin)
-  console.info('upper limit for latitude after transform: ' + yMax)
-  console.info('lower limit for longitude after transform: ' + xMin)
-  console.info('upper limit for longitude after transform: ' + xMax)
-}
-
-// Handle z-min
-if (!Object.hasOwnProperty.call(opt.options, 'z-min')) {
-  console.error('no lower limit for zoom provided.')
-  exit(1)
-} else {
-  zMin = Number.parseInt(opt.options['z-min'])
-  if (Number.isNaN(zMin)) {
-    console.error('lower limit for zoom cannot be parsed as a number.')
-    exit(1)
-  }
-  if (verbose) {
-    console.info('lower limit for zoom: ' + zMin)
-  }
-}
-
-// Handle zoom maximum
-if (!Object.hasOwnProperty.call(opt.options, 'z-max')) {
-  console.error('no upper limit for zoom provided.')
-  exit(1)
-} else {
-  zMax = Number.parseInt(opt.options['z-max'])
-  if (Number.isNaN(zMax)) {
-    console.error('upper limit for zoom cannot be parsed as a number.')
-    exit(1)
-  }
-  if (verbose) {
-    console.info('upper limit for zoom: ' + zMax)
-  }
-}
-
-// Ensure x-min <= x-max
-if (zMin > zMax) {
-  console.error('lower limit for zoom higher than upper limit')
-  exit(1)
-} else {
-  if (verbose) {
-    console.info('lower limit for zoom not higher than upper limit')
-  }
 }
 
 // Handle URI template
