@@ -29,7 +29,7 @@ exports.buildArgs = opt => {
       arg[`${id}-max`] = h
     }
   }
-  arg.proj = opt.proj
+  arg.proj = opt.proj || 'EPSG:4326'
 
   if (arg.proj !== 'EPSG:4326') {
     for (const limit of ['min', 'max']) {
