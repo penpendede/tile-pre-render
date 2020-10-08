@@ -1,33 +1,9 @@
 const { exit } = require('process')
-const fs = require('fs')
 const proj4 = require('proj4')
-const { booleanParameters } = require('./booleanParameters')
-const { defaultsList } = require('./defaultsList')
 
 exports.buildArgs = opt => {
   let h
   const arg = {}
-
-  for (const item of defaultsList) {
-    arg[item.name] = Object.hasOwnProperty.call(opt, item.name) ? opt[item.name] : opt.default
-  }
-
-  arg.file = opt.file
-  for (const item of booleanParameters) {
-    arg[item] = !!opt[item]
-  }
-
-  try {
-    if (arg.file !== undefined && fs.existsSync(arg.file)) {
-      if (!arg.overwrite) {
-        console.warn(`File "${arg.file}" already exists, use -O/--overwrite to overwrite`)
-        exit(1)
-      }
-    }
-  } catch (err) {
-    console.error(err)
-    exit(1)
-  }
 
   for (const id of ['x', 'y', 'z']) {
     for (const limit of ['min', 'max']) {
@@ -35,7 +11,11 @@ exports.buildArgs = opt => {
         console.error(`no ${limit} for ${id} value provided.`)
         exit(1)
       } else {
-        arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
+        if (id === 'z') {
+          arg[`z-${limit}`] = Number.parseInt(opt[`z-${limit}`])
+        } else {
+          arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
+        }
         if (Number.isNaN(arg[id])) {
           console.error(`${limit} ${id} value cannot be parsed as a number.`)
           exit(1)
@@ -49,6 +29,7 @@ exports.buildArgs = opt => {
       arg[`${id}-max`] = h
     }
   }
+  arg.proj = opt.proj
 
   if (arg.proj !== 'EPSG:4326') {
     for (const limit of ['min', 'max']) {

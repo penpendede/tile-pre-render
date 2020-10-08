@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+render_list --all ---socket=/run/renderd/renderd.sock --force --map= osm --num-threads= 4 --min-zoom=0 --max-zoom=0 --min-x=0 --max-x=0 --min-y=0 --max-y=0
 render_list --all ---socket=/run/renderd/renderd.sock --force --map= osm --num-threads= 4 --min-zoom=1 --max-zoom=1 --min-x=1 --max-x=1 --min-y=0 --max-y=0
 render_list --all ---socket=/run/renderd/renderd.sock --force --map= osm --num-threads= 4 --min-zoom=2 --max-zoom=2 --min-x=2 --max-x=2 --min-y=1 --max-y=1
 render_list --all ---socket=/run/renderd/renderd.sock --force --map= osm --num-threads= 4 --min-zoom=3 --max-zoom=3 --min-x=4 --max-x=4 --min-y=2 --max-y=2

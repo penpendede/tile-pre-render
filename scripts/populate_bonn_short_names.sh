@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+render_list -a  -s /run/renderd/renderd.sock -f  -m  osm -n  4 -z 0 -Z 0 -x 0 -X 0 -y 0 -Y 0
 render_list -a  -s /run/renderd/renderd.sock -f  -m  osm -n  4 -z 1 -Z 1 -x 1 -X 1 -y 0 -Y 0
 render_list -a  -s /run/renderd/renderd.sock -f  -m  osm -n  4 -z 2 -Z 2 -x 2 -X 2 -y 1 -Y 1
 render_list -a  -s /run/renderd/renderd.sock -f  -m  osm -n  4 -z 3 -Z 3 -x 4 -X 4 -y 2 -Y 2
