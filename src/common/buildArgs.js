@@ -11,7 +11,11 @@ exports.buildArgs = opt => {
         console.error(`no ${limit} for ${id} value provided.`)
         exit(1)
       } else {
-        arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
+        if (id === 'z') {
+          arg[`z-${limit}`] = Number.parseInt(opt[`z-${limit}`])
+        } else {
+          arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
+        }
         if (Number.isNaN(arg[id])) {
           console.error(`${limit} ${id} value cannot be parsed as a number.`)
           exit(1)
