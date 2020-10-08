@@ -18,9 +18,6 @@ exports.makeQueue = (leftDeg, bottomDeg, rightDeg, topDeg, zoom, uriObject, noWr
       if (!noWrite) {
         fs.mkdirSync(subdirectory)
       }
-      if (verbose) {
-        console.info('Creating directory "' + subdirectory + '"')
-      }
     } catch (e) {
       if (e.code !== 'EEXIST') {
         throw e
@@ -38,9 +35,6 @@ exports.makeQueue = (leftDeg, bottomDeg, rightDeg, topDeg, zoom, uriObject, noWr
         uriObject.hostDomainPart + zoom + '/' +
         (upperLeftCoordinates.X + deltaX) + '/' +
         (upperLeftCoordinates.Y + deltaY) + uriObject.suffix
-      if (verbose) {
-        console.info('enqueuing "' + uri + '"')
-      }
       const file = path.join(subdirectory, '' + (upperLeftCoordinates.Y + deltaY + uriObject.extension))
 
       queue.push({

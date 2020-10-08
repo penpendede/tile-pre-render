@@ -1,4 +1,4 @@
-exports.boolean = ['quiet', 'verbose']
+exports.boolean = ['quiet']
 
 exports.coord = [
   ['x', 'x-min=ARG', 'min x value'],

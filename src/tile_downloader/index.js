@@ -11,22 +11,15 @@ const opt = require('node-getopt').create(args)
   .bindHelp()
   .parseSystem()
 
-let verbose, xMin, xMax, yMin, yMax, zMin, zMax
+let xMin, xMax, yMin, yMax, zMin, zMax
 let uriTemplate, outputPath, maximumNumberOfParallelDownloads
 let quiet, noWrite
 
 const uriObject = uriTemplateToObject(uriTemplate)
-if (verbose) {
-  console.info('URI object:')
-  console.info(uriObject)
-}
 
 try {
   if (!noWrite) {
     mkdirp.sync(outputPath)
-  }
-  if (verbose) {
-    console.info('Creating directory "' + outputPath + '"')
   }
 } catch (e) {
   if (e.code !== 'EEXIST') {
@@ -39,9 +32,6 @@ for (let zoom = zMin; zoom <= zMax; zoom++) {
   try {
     if (!noWrite) {
       fs.mkdirSync(subdirectory)
-    }
-    if (verbose) {
-      console.info('Creating directory "' + subdirectory + '"')
     }
   } catch (e) {
     if (e.code !== 'EEXIST') {

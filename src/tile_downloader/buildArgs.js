@@ -3,9 +3,7 @@ const { exit } = require('process')
 
 exports.buildArgs = opt => {
   const arg = buildArgs(opt)
-  // Handle verbose
   arg.quiet = !!opt.quiet
-  arg.verbose = !!opt.verbose
   arg.noWrite = !!opt.noWrite
 
   // Handle URI template
