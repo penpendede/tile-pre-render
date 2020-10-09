@@ -1,5 +1,6 @@
 const { buildArgs } = require('../common/buildArgs')
 const { exit } = require('process')
+const { uriTemplateToObject } = require('../lib/uriTemplateToObject')
 
 exports.buildArgs = opt => {
   const arg = buildArgs(opt)
@@ -7,29 +8,29 @@ exports.buildArgs = opt => {
   arg.noWrite = !!opt.noWrite
 
   // Handle URI template
-  if (!Object.hasOwnProperty.call(opt, 'uri-template')) {
+  if (!Object.hasOwnProperty.call(opt, 'uriTemplate')) {
     console.error('no URI template provided.')
     exit(1)
   } else {
     const pattern = new RegExp('https?:.*//[^[]*(\\{([a-z](-[a-z])?)+\\})?.*/\\{z\\}/\\{x\\}/\\{y\\}.*')
-    if (!pattern.test(opt['uri-template'])) {
+    if (!pattern.test(opt.uriTemplate)) {
       console.error('unsupported URI template')
-      exit(0)
+      exit(1)
     }
-    arg.uriTemplate = opt['uri-template']
+    arg.uriObject = uriTemplateToObject(opt.uriTemplate)
   }
 
   // Handle output path
-  if (!Object.hasOwnProperty.call(opt, 'output-path')) {
+  if (!Object.hasOwnProperty.call(opt, 'outputDir')) {
     console.error('no output path provided.')
     exit(1)
   }
-  arg.outputPath = opt.options['output-path']
+  arg.outputDir = opt.outputDir
 
-  if (Object.hasOwnProperty.call(opt, 'parallel-max')) {
-    arg.maxParallelDownloads = Number.parseInt(opt.options.parallelMaximum)
+  if (Object.hasOwnProperty.call(opt, 'parallelMax')) {
+    arg.maxParallel = Number.parseInt(opt.parallelMax)
   } else {
-    arg.maxParallelDownloads = 4
+    arg.maxParallel = 4
   }
 
   return arg

@@ -1,6 +1,6 @@
 const commonCliArgs = require('../common/cliArgs')
 exports.args = commonCliArgs.coord.concat([
-  ['L', 'long-opt-names', 'print long option names'],
+  ['L', 'longOptNames', 'print long option names'],
   ['o', 'file=FILE', 'file to write (without this the script is printed)'],
   ['O', 'overwrite', 'overwrite file if exists'],
   ['c', 'command=COMMAND', 'render command, defaults to "render_list"'],
@@ -10,12 +10,12 @@ exports.args = commonCliArgs.coord.concat([
   ['m', 'map=MAP', 'map to render, default "default"'],
   ['l', 'load=LOAD', 'sleep if load is this high, default 16'],
   ['s', 'socket=SOCKET', 'socket to use, default "/run/renderd/renderd.sock"'],
-  ['t', 'tile-dir=DIR', 'tile cache directory, default "/var/lib/mod_tile"']
+  ['t', 'tileDir=DIR', 'tile cache directory, default "/var/lib/mod_tile"']
 ]).concat(commonCliArgs.help)
 
 exports.boolean = commonCliArgs.boolean.concat([
   'force',
-  'long-opt-names',
+  'longOptNames',
   'overwrite'
 ])
 
@@ -45,7 +45,7 @@ exports.defaults = commonCliArgs.defaults.concat([
     default: '1'
   },
   {
-    name: 'tile-dir',
+    name: 'tileDir',
     default: '/var/lib/mod_tile'
   }
 ])
@@ -73,7 +73,7 @@ exports.optional = commonCliArgs.optional.concat([
     option: '-n'
   },
   {
-    name: 'tile-dir',
+    name: 'tileDir',
     skipVal: '/var/lib/mod_tile',
     option: '-t'
   }

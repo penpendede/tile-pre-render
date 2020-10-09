@@ -1,29 +1,27 @@
 const fs = require('fs')
-const request = require('request')
+const fetch = require('node-fetch')
 
-exports.processQueue = (queue, maxParallel, quiet, noWrite) => {
+exports.processQueue = (queue, arg) => {
   const totalNumber = queue.length
-  if (!quiet) {
+  if (!arg.quiet) {
     console.info('files to download: ' + totalNumber)
   }
   let currentId = 0
-  for (let i = 0; i < Math.min(maxParallel, totalNumber); i++) {
+  for (let i = 0; i < Math.min(arg.maxParallel, totalNumber); i++) {
     getNextTile()
   }
   function getNextTile () {
     const idToFetch = currentId++
     if (idToFetch < totalNumber) {
-      if (!quiet) {
+      if (!arg.quiet) {
         console.info('fetching "' + queue[idToFetch].uri + '"')
       }
-      if (noWrite) {
-        request(queue[idToFetch].uri)
-          .on('response', (response) => getNextTile())
-      } else {
-        request(queue[idToFetch].uri)
-          .on('response', (response) => getNextTile())
-          .pipe(fs.createWriteStream(queue[idToFetch].file))
-      }
+      fetch(queue[idToFetch].uri)
+        .then(response => response.buffer())
+        .then(buffer => {
+          fs.writeFileSync(queue[idToFetch].file, buffer)
+          getNextTile()
+        })
     }
   }
 }

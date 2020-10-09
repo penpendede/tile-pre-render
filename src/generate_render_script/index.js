@@ -3,7 +3,11 @@ const { args } = require('./cliArgs')
 const { buildArgs } = require('./buildArgs')
 const { buildScript } = require('../lib/buildScript')
 
-const opt = require('node-getopt').create(args).bindHelp().parseSystem().options
+const opt = require('node-getopt')
+  .create(args)
+  .bindHelp()
+  .parseSystem()
+  .options
 
 const arg = buildArgs(opt)
 const script = buildScript(arg)
