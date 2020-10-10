@@ -6,15 +6,15 @@ exports.buildArgs = opt => {
   const arg = {}
 
   for (const id of ['x', 'y', 'z']) {
-    for (const limit of ['min', 'max']) {
-      if (!Object.hasOwnProperty.call(opt, `${id}-${limit}`)) {
+    for (const limit of ['Min', 'Max']) {
+      if (!Object.hasOwnProperty.call(opt, id + limit)) {
         console.error(`no ${limit} for ${id} value provided.`)
         exit(1)
       } else {
         if (id === 'z') {
-          arg[`z-${limit}`] = Number.parseInt(opt[`z-${limit}`])
+          arg[id + limit] = Number.parseInt(opt[id + limit])
         } else {
-          arg[`${id}-${limit}`] = Number.parseFloat(opt[`${id}-${limit}`])
+          arg[id + limit] = Number.parseFloat(opt[id + limit])
         }
         if (Number.isNaN(arg[id])) {
           console.error(`${limit} ${id} value cannot be parsed as a number.`)
@@ -22,20 +22,20 @@ exports.buildArgs = opt => {
         }
       }
     }
-    if (arg[`${id}-min`] > arg[`${id}-max`]) {
-      console.log(`min ${id} value larger than max, swapping`)
-      h = arg[`${id}-min`]
-      arg[`${id}-min`] = arg[`${id}-max`]
-      arg[`${id}-max`] = h
+    if (arg[`${id}Min`] > arg[`${id}Max`]) {
+      console.info(`min ${id} value larger than max, swapping`)
+      h = arg[`${id}Min`]
+      arg[`${id}Min`] = arg[`${id}Max`]
+      arg[`${id}Max`] = h
     }
   }
-  arg.proj = opt.proj
+  arg.proj = opt.proj || 'EPSG:4326'
 
   if (arg.proj !== 'EPSG:4326') {
     for (const limit of ['min', 'max']) {
-      const convertedCoordinates = proj4(arg.proj, 'EPSG:4326', [arg[`x-${limit}`], arg[`y-${limit}`]])
-      arg[`x-${limit}`] = convertedCoordinates[0]
-      arg[`y-${limit}`] = convertedCoordinates[1]
+      const convertedCoordinates = proj4(arg.proj, 'EPSG:4326', [arg['x' + limit], arg['y' + limit]])
+      arg['x' + limit] = convertedCoordinates[0]
+      arg['y' + limit] = convertedCoordinates[1]
     }
   }
   return arg

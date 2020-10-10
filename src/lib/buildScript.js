@@ -14,11 +14,11 @@ exports.buildScript = arg => {
       }
     }
   }
-  for (let z = arg['z-min']; z <= arg['z-max']; z++) {
-    let coords = getTileCoordinates(arg['y-min'], arg['x-min'], z)
+  for (let z = arg.zMin; z <= arg.zMax; z++) {
+    let coords = getTileCoordinates(arg.yMin, arg.xMin, z)
     const x0 = coords.X
     const y0 = coords.Y
-    coords = getTileCoordinates(arg['y-max'], arg['x-max'], z)
+    coords = getTileCoordinates(arg.yMax, arg.xMax, z)
     const x1 = coords.X
     const y1 = coords.Y
     let allArgs = commonArgs.concat([
@@ -26,7 +26,7 @@ exports.buildScript = arg => {
       ' ', '-x ', x0, ' ', '-X ', x1,
       ' ', '-y ', y1, ' ', '-Y ', y0]
     )
-    if (arg['long-opt-names']) {
+    if (arg.longOptNames) {
       allArgs = allArgs.map(x => Object.hasOwnProperty.call(longArgumentName, x) ? longArgumentName[x] : x)
     }
     scriptRows.push(allArgs.join(''))

@@ -1,12 +1,12 @@
-exports.boolean = ['quiet', 'verbose']
+exports.boolean = ['quiet']
 
 exports.coord = [
-  ['x', 'x-min=ARG', 'min x value'],
-  ['X', 'x-max=ARG', 'max x value'],
-  ['y', 'y-min=ARG', 'min y value'],
-  ['Y', 'y-max=ARG', 'max y value'],
-  ['z', 'z-min=ARG', 'min z value (zoom level)'],
-  ['Z', 'z-max=ARG', 'max z value (zoom level)'],
+  ['x', 'xMin=ARG', 'min x value'],
+  ['X', 'xMax=ARG', 'max x value'],
+  ['y', 'yMin=ARG', 'min y value'],
+  ['Y', 'yMax=ARG', 'max y value'],
+  ['z', 'zMin=ARG', 'min z value (zoom level)'],
+  ['Z', 'zMax=ARG', 'max z value (zoom level)'],
   ['p', 'proj=PROJECTION', 'projection in which the coordinates are provided']
 ]
 

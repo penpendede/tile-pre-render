@@ -1,32 +1,24 @@
-const { exit } = require('process')
-const fs = require('fs')
-const mkdirp = require('mkdirp')
-const path = require('path')
+const { args } = require('./cliArgs')
+const { buildArgs } = require('./buildArgs')
 const { makeQueue } = require('../lib/makeQueue')
 const { processQueue } = require('../lib/processQueue')
-const { uriTemplateToObject } = require('../lib/uriTemplateToObject')
-const { args } = require('./cliArgs')
+const mkdirp = require('mkdirp')
+const path = require('path')
+const fs = require('fs')
 
-const opt = require('node-getopt').create(args)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
+const opt = require('node-getopt')
+  .create(args)
   .bindHelp()
   .parseSystem()
+  .options
 
-let verbose, xMin, xMax, yMin, yMax, zMin, zMax
-let uriTemplate, outputPath, maximumNumberOfParallelDownloads
-let quiet, noWrite
-
-const uriObject = uriTemplateToObject(uriTemplate)
-if (verbose) {
-  console.info('URI object:')
-  console.info(uriObject)
-}
+const arg = buildArgs(opt)
 
 try {
-  if (!noWrite) {
-    mkdirp.sync(outputPath)
-  }
-  if (verbose) {
-    console.info('Creating directory "' + outputPath + '"')
+  if (!arg.noWrite) {
+    mkdirp.sync(arg.outputDir)
   }
 } catch (e) {
   if (e.code !== 'EEXIST') {
@@ -34,21 +26,17 @@ try {
   }
 }
 
-for (let zoom = zMin; zoom <= zMax; zoom++) {
-  const subdirectory = path.join(outputPath, '' + zoom)
+for (let zoom = arg.zMin; zoom <= arg.zMax; zoom++) {
+  const subdirectory = path.join(arg.outputDir, '' + zoom)
   try {
-    if (!noWrite) {
+    if (!arg.noWrite) {
       fs.mkdirSync(subdirectory)
-    }
-    if (verbose) {
-      console.info('Creating directory "' + subdirectory + '"')
     }
   } catch (e) {
     if (e.code !== 'EEXIST') {
       throw e
     }
   }
-  processQueue(makeQueue(xMin, yMin, xMax, yMax, zoom, uriObject, noWrite), maximumNumberOfParallelDownloads, quiet, noWrite)
+  arg.zoom = zoom
+  processQueue(makeQueue(arg), arg)
 }
-
-exit(0)

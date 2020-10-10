@@ -2,9 +2,9 @@ const fs = require('fs')
 const path = require('path')
 const { getTileCoordinates } = require('./getTileCoordinates')
 
-exports.makeQueue = (leftDeg, bottomDeg, rightDeg, topDeg, zoom, uriObject, noWrite) => {
-  const upperLeftCoordinates = getTileCoordinates(topDeg, leftDeg, zoom)
-  const lowerRightCoordinates = getTileCoordinates(bottomDeg, rightDeg, zoom)
+exports.makeQueue = (arg) => {
+  const upperLeftCoordinates = getTileCoordinates(arg.yMax, arg.xMin, arg.zoom)
+  const lowerRightCoordinates = getTileCoordinates(arg.yMin, arg.xMax, arg.zoom)
 
   const width = 1 + lowerRightCoordinates.X - upperLeftCoordinates.X
   const height = 1 + lowerRightCoordinates.Y - upperLeftCoordinates.Y
@@ -13,13 +13,10 @@ exports.makeQueue = (leftDeg, bottomDeg, rightDeg, topDeg, zoom, uriObject, noWr
   const queue = []
 
   for (let deltaX = 0; deltaX < width; deltaX++) {
-    subdirectory = path.join(outputPath, '' + zoom, '' + (upperLeftCoordinates.X + deltaX))
+    subdirectory = path.join(arg.outputDir, '' + arg.zoom, '' + (upperLeftCoordinates.X + deltaX))
     try {
-      if (!noWrite) {
+      if (!arg.noWrite) {
         fs.mkdirSync(subdirectory)
-      }
-      if (verbose) {
-        console.info('Creating directory "' + subdirectory + '"')
       }
     } catch (e) {
       if (e.code !== 'EEXIST') {
@@ -29,19 +26,16 @@ exports.makeQueue = (leftDeg, bottomDeg, rightDeg, topDeg, zoom, uriObject, noWr
 
     for (let deltaY = 0; deltaY < height; deltaY++) {
       let hostRangeElement
-      if (uriObject.hostRange.length) {
-        hostRangeElement = uriObject.hostRange[Number.parseInt(Math.random() * uriObject.hostRange.length)]
+      if (arg.uriObject.hostRange.length) {
+        hostRangeElement = arg.uriObject.hostRange[Number.parseInt(Math.random() * arg.uriObject.hostRange.length)]
       } else {
         hostRangeElement = ''
       }
-      uri = uriObject.prefix + hostRangeElement +
-        uriObject.hostDomainPart + zoom + '/' +
+      uri = arg.uriObject.prefix + hostRangeElement +
+        arg.uriObject.hostDomainPart + arg.zoom + '/' +
         (upperLeftCoordinates.X + deltaX) + '/' +
-        (upperLeftCoordinates.Y + deltaY) + uriObject.suffix
-      if (verbose) {
-        console.info('enqueuing "' + uri + '"')
-      }
-      const file = path.join(subdirectory, '' + (upperLeftCoordinates.Y + deltaY + uriObject.extension))
+        (upperLeftCoordinates.Y + deltaY) + arg.uriObject.suffix
+      const file = path.join(subdirectory, '' + (upperLeftCoordinates.Y + deltaY + arg.uriObject.extension))
 
       queue.push({
         file: file,
