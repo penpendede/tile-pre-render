@@ -11,7 +11,7 @@ exports.boolean = commonCliArgs.boolean.concat(['nowrite'])
 exports.defaults = commonCliArgs.defaults.concat([
   {
     name: 'parallelMax',
-    default: 4
+    default: 2
   }
 ])
 

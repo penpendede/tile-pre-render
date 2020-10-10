@@ -19,7 +19,9 @@ exports.processQueue = (queue, arg) => {
       fetch(queue[idToFetch].uri)
         .then(response => response.buffer())
         .then(buffer => {
-          fs.writeFileSync(queue[idToFetch].file, buffer)
+          if (!arg.noWrite) {
+            fs.writeFileSync(queue[idToFetch].file, buffer)
+          }
           getNextTile()
         })
     }
