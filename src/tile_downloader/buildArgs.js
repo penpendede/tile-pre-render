@@ -30,7 +30,7 @@ exports.buildArgs = opt => {
   if (Object.hasOwnProperty.call(opt, 'parallelMax')) {
     arg.maxParallel = Number.parseInt(opt.parallelMax)
   } else {
-    arg.maxParallel = 4
+    arg.maxParallel = 2
   }
 
   return arg
